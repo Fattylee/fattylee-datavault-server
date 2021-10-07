@@ -1,10 +1,11 @@
-import express from "express";
-import { config } from "dotenv";
-import morgan from "morgan";
-import { startConnection } from "./config/connection";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { config } from "dotenv";
+import express from "express";
+import morgan from "morgan";
+import { setUserId } from "./auth/auth.middleware";
 import { authRouter } from "./auth/auth.route";
+import { startConnection } from "./config/connection";
 
 config();
 
@@ -21,6 +22,8 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(setUserId);
 
 app.use("/api/v1/", authRouter);
 

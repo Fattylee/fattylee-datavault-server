@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
+
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { IUser, UserModel } from "../types";
 
-const { model, Schema } = mongoose;
-
-const UserSchema = new Schema({
+const UserSchema = new Schema<IUser, UserModel>({
   email: {
     type: String,
     required: true,
@@ -49,19 +49,6 @@ UserSchema.methods.isValidPassword = function isValidPassword(
   return bcrypt.compare(password, this["password"]);
 };
 
-UserSchema.statics.verifyToken = ({
-  token,
-  type,
-}: {
-  token: string;
-  type: "access" | "refresh";
-}) => {
-  if (type === "access")
-    return jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET!);
-
-  return jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET!);
-};
-
 UserSchema.methods.generateToken = function generateToken({
   type,
 }: {
@@ -77,6 +64,22 @@ UserSchema.methods.generateToken = function generateToken({
     expiresIn: "15min",
   });
 };
+
+UserSchema.static(
+  "verifyToken",
+  function verifyToken({
+    token,
+    type,
+  }: {
+    token: string;
+    type: "access" | "refresh";
+  }) {
+    if (type === "access")
+      return jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET!);
+
+    return jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET!);
+  }
+);
 
 UserSchema.pre("save", async function callBackNext(next) {
   try {

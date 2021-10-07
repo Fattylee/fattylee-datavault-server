@@ -53,16 +53,22 @@ const login = async (req: Request, res: Response) => {
 };
 
 const me = async (_: any, res: Response) => {
-  res.status(200).json(res.locals.user);
+  res.status(200).json(res.locals.user.toObject());
 };
 
 const logout = (_: any, res: Response) => {
   try {
-    res.cookie("token", "", {
+    res.cookie("access-token", "", {
       httpOnly: true,
       sameSite: "none",
       secure: process.env.NODE_ENV === "production",
       expires: new Date(0),
+    });
+    res.cookie("refresh-token", "", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 0,
     });
 
     res.status(200).json({ success: true });
@@ -72,4 +78,29 @@ const logout = (_: any, res: Response) => {
   }
 };
 
-export { register, login, me, logout };
+const invalidateToken = async (_: any, res: Response) => {
+  try {
+    const { user } = res.locals;
+    user.count = user.count + 1;
+    await user.save();
+    res.cookie("access-token", "", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(0),
+    });
+    res.cookie("refresh-token", "", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 0,
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export { register, login, me, logout, invalidateToken };
