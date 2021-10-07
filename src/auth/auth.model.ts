@@ -4,38 +4,44 @@ import jwt from "jsonwebtoken";
 
 const { model, Schema } = mongoose;
 
-const UserSchema = new Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
-    },
-    lastName: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
-    },
-    count: {
-      type: Number,
-      default: 0,
-    },
+const UserSchema = new Schema({
+  email: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true,
+    unique: true,
   },
-  { timestamps: true }
-);
+  password: {
+    type: String,
+    required: true,
+  },
+  firstName: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true,
+  },
+  lastName: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true,
+  },
+  count: {
+    type: Number,
+    default: 0,
+  },
+});
+
+UserSchema.set("timestamps", true);
+UserSchema.set("toObject", {
+  transform: function (_doc: any, ret: any) {
+    delete ret.count;
+    delete ret.password;
+    return ret;
+  },
+});
 
 UserSchema.methods.isValidPassword = function isValidPassword(
   password: string
