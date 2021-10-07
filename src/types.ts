@@ -1,5 +1,9 @@
-import { Model } from "mongoose";
+import { Model, ObjectId } from "mongoose";
 
+export interface IPost {
+  message: string;
+  owner: ObjectId;
+}
 export interface IUser {
   email: string;
   password: string;
