@@ -14,8 +14,11 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: process.env.ORIGIN,
     optionsSuccessStatus: 200,
+    origin:
+      process.env.NODE_ENV === "production"
+        ? /\.netlify\.app$/
+        : "http://localhost:3000",
   })
 );
 
