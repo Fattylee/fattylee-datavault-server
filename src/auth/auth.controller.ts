@@ -34,13 +34,13 @@ const login = async (req: Request, res: Response) => {
 
     res.cookie("access-token", emailUser.generateToken({ type: "access" }), {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       maxAge: 1000 * 60 * 15, // 15 min
     });
     res.cookie("refresh-token", emailUser.generateToken({ type: "refresh" }), {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });

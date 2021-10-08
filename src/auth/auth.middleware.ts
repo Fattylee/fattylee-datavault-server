@@ -51,13 +51,13 @@ const setUserId = async (req: Request, res: Response, next: NextFunction) => {
 
   res.cookie("access-token", user?.generateToken({ type: "access" }), {
     httpOnly: true,
-    sameSite: "none",
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 15, // 15 min
   });
   res.cookie("refresh-token", user?.generateToken({ type: "refresh" }), {
     httpOnly: true,
-    sameSite: "none",
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
   });
