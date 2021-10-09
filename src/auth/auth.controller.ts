@@ -60,13 +60,13 @@ const logout = (_: any, res: Response) => {
   try {
     res.cookie("access-token", "", {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       secure: process.env.NODE_ENV === "production",
       expires: new Date(0),
     });
     res.cookie("refresh-token", "", {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       secure: process.env.NODE_ENV === "production",
       maxAge: 0,
     });
@@ -85,13 +85,13 @@ const invalidateToken = async (_: any, res: Response) => {
     await user.save();
     res.cookie("access-token", "", {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       secure: process.env.NODE_ENV === "production",
       expires: new Date(0),
     });
     res.cookie("refresh-token", "", {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       secure: process.env.NODE_ENV === "production",
       maxAge: 0,
     });
