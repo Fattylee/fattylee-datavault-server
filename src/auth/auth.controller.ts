@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { User } from "./auth.model";
+import { setAccessAndRefreshCookie } from "./auth.service";
 
 const register = async (req: Request, res: Response) => {
   try {
@@ -32,19 +33,7 @@ const login = async (req: Request, res: Response) => {
     if (!passwordMatches)
       return res.status(400).json({ password: "Incorrect password" });
 
-    res.cookie("access-token", emailUser.generateToken({ type: "access" }), {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 15, // 15 min
-    });
-    res.cookie("refresh-token", emailUser.generateToken({ type: "refresh" }), {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    });
-
+    setAccessAndRefreshCookie({ res, user: emailUser! });
     res.status(200).json(emailUser.toObject());
   } catch (error: any) {
     console.log(error);
@@ -58,19 +47,7 @@ const me = async (_: any, res: Response) => {
 
 const logout = (_: any, res: Response) => {
   try {
-    res.cookie("access-token", "", {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(0),
-    });
-    res.cookie("refresh-token", "", {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 0,
-    });
-
+    setAccessAndRefreshCookie({ res, user: res.locals.user!, expires: true });
     res.status(200).json({ success: true });
   } catch (error: any) {
     console.error(error);
@@ -83,19 +60,8 @@ const invalidateToken = async (_: any, res: Response) => {
     const { user } = res.locals;
     user.count = user.count + 1;
     await user.save();
-    res.cookie("access-token", "", {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(0),
-    });
-    res.cookie("refresh-token", "", {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 0,
-    });
 
+    setAccessAndRefreshCookie({ res, user: user!, expires: true });
     res.status(200).json({ success: true });
   } catch (error: any) {
     console.error(error);

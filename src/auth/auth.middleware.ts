@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ITokenPayload } from "../types";
 import { User } from "./auth.model";
+import { setAccessAndRefreshCookie } from "./auth.service";
 
 const authGuard = async (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -49,18 +50,7 @@ const setUserId = async (req: Request, res: Response, next: NextFunction) => {
   const user = await User.findOne({ _id: userId });
   if (user?.count !== count) return next();
 
-  res.cookie("access-token", user?.generateToken({ type: "access" }), {
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 15, // 15 min
-  });
-  res.cookie("refresh-token", user?.generateToken({ type: "refresh" }), {
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  });
+  setAccessAndRefreshCookie({ res, user: user! });
 
   res.locals.userId = userId;
   next();
