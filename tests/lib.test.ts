@@ -1,4 +1,5 @@
-import { absolute } from "../src/utils/lib";
+import { db } from "../src/utils/db";
+import { absolute, applyDiscount } from "../src/utils/lib";
 
 describe("absolute", () => {
   it("should return a zero when input is zero", () => {
@@ -17,5 +18,26 @@ describe("absolute", () => {
         absolute(notANumber);
       }).toThrow();
     });
+  });
+});
+
+db.getCustomerSync = (customerId: string) => {
+  console.log("Fake....");
+  return { id: customerId, points: 13 };
+};
+describe("mockfunc", () => {
+  test("should apply discount on order whose customer has a points that is more than or equal to 10", () => {
+    const order = { customerId: "123", totalPrice: 10 };
+
+    db.getCustomerSync = jest
+      .fn()
+      .mockReturnValue({ id: "12", points: 20 })
+      .mockImplementation(() => {
+        console.log("jest mock function......");
+        return { id: "12", points: 60 };
+      });
+
+    applyDiscount(order);
+    expect(order).toHaveProperty("totalPrice", 9);
   });
 });
