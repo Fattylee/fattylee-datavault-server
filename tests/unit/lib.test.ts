@@ -1,5 +1,7 @@
-import { db } from "../src/utils/db";
-import { absolute, applyDiscount } from "../src/utils/lib";
+import { db } from "../../src/utils/db";
+import { absolute, applyDiscount } from "../../src/utils/lib";
+
+console.log(process.env.NODE_ENV);
 
 describe("absolute", () => {
   it("should return a zero when input is zero", () => {
@@ -22,7 +24,6 @@ describe("absolute", () => {
 });
 
 db.getCustomerSync = (customerId: string) => {
-  console.log("Fake....");
   return { id: customerId, points: 13 };
 };
 describe("mockfunc", () => {
@@ -33,7 +34,6 @@ describe("mockfunc", () => {
       .fn()
       .mockReturnValue({ id: "12", points: 20 })
       .mockImplementation(() => {
-        console.log("jest mock function......");
         return { id: "12", points: 60 };
       });
 
